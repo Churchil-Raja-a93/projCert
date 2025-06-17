@@ -2,7 +2,7 @@
 FROM php:8.2-apache
 
 # Set working directory
-WORKDIR /var/www/html
+WORKDIR ~/project
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
