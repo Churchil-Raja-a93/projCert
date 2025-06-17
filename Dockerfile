@@ -1,9 +1,6 @@
 # Use an official PHP runtime as the base image
 FROM php:8.2-apache
 
-# Set working directory
-WORKDIR ~/project
-
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
@@ -18,13 +15,18 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy existing application files
+# Set working directory to Apache's web root
+WORKDIR /var/www/html
+
+# Copy application files to web root
 COPY . .
 
-# Install PHP dependencies (if you have composer.json)
-# RUN composer install --no-dev --no-interaction --optimize-autoloader
+# Install PHP dependencies if composer.json exists
+RUN if [ -f composer.json ]; then \
+    composer install --no-dev --no-interaction --optimize-autoloader; \
+    fi
 
-# Set permissions
+# Set permissions and enable Apache modules
 RUN chown -R www-data:www-data /var/www/html \
     && a2enmod rewrite
 
@@ -33,5 +35,3 @@ EXPOSE 80
 
 # Start Apache server
 CMD ["apache2-foreground"]
-
-#completed
