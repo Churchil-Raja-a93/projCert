@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /var/www/html
 
 # Remove default files from the base image
-RUN rm -rf /var/www/html/*
+RUN mkdir -p /var/www/html && \
+    rm -rf /var/www/html/*
 
 # Copy your PHP application files to the web root
 COPY . /var/www/html/
@@ -30,8 +31,8 @@ RUN if [ -f composer.json ]; then \
     fi
 
 # Set permissions and enable Apache modules
-RUN chown -R www-data:www-data /var/www/html \
-    && a2enmod rewrite
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html
 
 # Expose port 80
 EXPOSE 80
