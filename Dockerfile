@@ -1,41 +1,24 @@
-# Use an official PHP runtime as the base image
+# Use appropriate PHP-Apache base image
 FROM php:8.2-apache
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    zip \
-    unzip \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
-
-# Install Composer
-# COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Set working directory to Apache's web root
+# Set working directory
 WORKDIR /var/www/html
 
-# Remove default files from the base image
-RUN mkdir -p /var/www/html && \
-    rm -rf /var/www/html/*
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y \
+        libzip-dev \
+        zip \
+        && docker-php-ext-install pdo_mysql zip
 
-# Copy your PHP application files to the web root
-COPY . /var/www/html/
+# Copy PHP files
+COPY . .
 
-# Install PHP dependencies if composer.json exists
-RUN if [ -f composer.json ]; then \
-    composer install --no-dev --no-interaction --optimize-autoloader; \
-    fi
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
 
-# Set permissions and enable Apache modules
-RUN chown -R www-data:www-data /var/www/html && \
-    chmod -R 755 /var/www/html
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html
 
-# Expose port 80
 EXPOSE 80
-
-# Start Apache server
 CMD ["apache2-foreground"]
