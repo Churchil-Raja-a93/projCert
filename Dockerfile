@@ -18,8 +18,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory to Apache's web root
 WORKDIR /var/www/html
 
-# Copy application files to web root
-COPY . .
+# Remove default files from the base image
+RUN rm -rf /var/www/html/*
+
+# Copy your PHP application files to the web root
+COPY . /var/www/html/
 
 # Install PHP dependencies if composer.json exists
 RUN if [ -f composer.json ]; then \
